@@ -46,7 +46,7 @@ spin plugins install akamai-functions-mcp
 The canary release of the `akamai-functions-mcp` represents the most recent commits on main and may not be stable, with some features still in progress.
 
 ```bash
-spin plugins install --url https://github.com/ThorstenHans/akamai-functions-mcp-server/releases/download/canary/gh.json
+spin plugins install --url https://github.com/ThorstenHans/akamai-functions-mcp-server/releases/download/canary/akamai-functions-mcp.json
 ```
 
 ### Install from a local build
