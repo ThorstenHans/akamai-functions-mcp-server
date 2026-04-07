@@ -32,7 +32,7 @@ func (a *AkamaiFunctionsTools) RegisterAllWith(s *server.MCPServer) {
 	s.AddTool(listAccountsTool, mcp.NewStructuredToolHandler(a.ListAccounts))
 
 	getAppStatusTool := mcp.NewTool("get_app_status",
-		mcp.WithDescription("Retrieve the status of an application deployed to my Akamai Functions account"),
+		mcp.WithDescription("Retrieve the status of an Akamai Function. You can omit the ID or Name if you are running this in a project directory containing a .spin-aka/config.toml file; the server will auto-detect the application."),
 		mcp.WithReadOnlyHintAnnotation(true),
 		mcp.WithDestructiveHintAnnotation(false),
 		mcp.WithInputSchema[ByAppArgs](),
@@ -41,7 +41,7 @@ func (a *AkamaiFunctionsTools) RegisterAllWith(s *server.MCPServer) {
 	s.AddTool(getAppStatusTool, mcp.NewStructuredToolHandler(a.GetAppStatus))
 
 	getAppUrlTool := mcp.NewTool("get_app_url",
-		mcp.WithDescription("Retrieve the public endpoint for an app deployed to my Akamai Functions account"),
+		mcp.WithDescription("Retrieve the public endpoint for an Akamai Function. You can omit the ID or Name if you are running this in a project directory containing a .spin-aka/config.toml file; the server will auto-detect the application."),
 		mcp.WithReadOnlyHintAnnotation(true),
 		mcp.WithDestructiveHintAnnotation(false),
 		mcp.WithInputSchema[ByAppArgs](),
@@ -49,7 +49,7 @@ func (a *AkamaiFunctionsTools) RegisterAllWith(s *server.MCPServer) {
 	s.AddTool(getAppUrlTool, mcp.NewStructuredToolHandler(a.GetAppUrl))
 
 	getAppLogsTool := mcp.NewTool("get_app_logs",
-		mcp.WithDescription("Retrieve logs for a particular application deployed to my Akamai Functions account"),
+		mcp.WithDescription("Retrieves logs for an Akamai Function. You can omit the ID or Name if you are running this in a project directory containing a .spin-aka/config.toml file; the server will auto-detect the application."),
 		mcp.WithReadOnlyHintAnnotation(true),
 		mcp.WithDestructiveHintAnnotation(false),
 		mcp.WithInputSchema[GetAppLogArguments](),
@@ -57,7 +57,7 @@ func (a *AkamaiFunctionsTools) RegisterAllWith(s *server.MCPServer) {
 	s.AddTool(getAppLogsTool, mcp.NewStructuredToolHandler(a.GetAppLogs))
 
 	getAppHistoryTool := mcp.NewTool("get_app_history",
-		mcp.WithDescription("Retrieve the history of an app deployed to my Akamai Functions account"),
+		mcp.WithDescription("Retrieve the history of an Akamai Function. You can omit the ID or Name if you are running this in a project directory containing a .spin-aka/config.toml file; the server will auto-detect the application."),
 		mcp.WithReadOnlyHintAnnotation(true),
 		mcp.WithDestructiveHintAnnotation(false),
 		mcp.WithInputSchema[ByAppArgs](),

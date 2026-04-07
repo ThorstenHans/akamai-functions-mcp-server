@@ -31,7 +31,7 @@ func (a *AkamaiFunctionsTools) SearchAppByName(ctx context.Context, request mcp.
 	}
 	args.Query = strings.ToLower(args.Query)
 	command := []string{"aka", "info", "--format", "json"}
-	a.logger.Printf("Will run command: %v\n", command)
+	a.logger.Printf("Will find all your Akamai Functions accounts using the following spin command: %v\n", command)
 	out, err := spin.RunCommand(command...)
 	if err != nil {
 		a.logger.Printf("Error running command %v: %v\n", command, err)
@@ -48,6 +48,7 @@ func (a *AkamaiFunctionsTools) SearchAppByName(ctx context.Context, request mcp.
 
 	apps := make([]SearchResult, 0)
 	for _, account := range accountInfo.AuthInfo.Accounts {
+		a.logger.Printf("Will retrieve all apps for particular account using the following spin command: %v\n", []string{"aka", "apps", "list", "--format", "json", "--account-id", account.Id})
 		out, err := spin.RunCommand("aka", "apps", "list", "--format", "json", "--account-id", account.Id)
 		if err != nil {
 			a.logger.Printf("Error running command to get apps for account %s: %v\nOutput was: %s\n", account.Name, err, string(out))

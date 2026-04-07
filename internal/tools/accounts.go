@@ -29,7 +29,7 @@ type ListAccountsArgs struct{}
 
 func (a *AkamaiFunctionsTools) ListAccounts(ctx context.Context, request mcp.CallToolRequest, args ListAccountsArgs) (ToolResponse[ListAccountResponse], error) {
 	command := []string{"aka", "info", "--format", "json"}
-	a.logger.Printf("Running command :%v", command)
+	a.logger.Printf("Will retrieve all your Akamai Functions accounts using the following spin command: %v", command)
 	out, err := spin.RunCommand(command...)
 	if err != nil {
 		return NewToolErrorResponse[ListAccountResponse](err.Error()), err

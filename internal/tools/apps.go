@@ -35,7 +35,7 @@ func (a *AkamaiFunctionsTools) ListApps(ctx context.Context, request mcp.CallToo
 	if len(args.Account.Id) > 0 {
 		command = append(command, "--account-id", args.Account.Id)
 	}
-	a.logger.Printf("Will run command: %v\n", command)
+	a.logger.Printf("Will retrieve all apps for the specified account using the following spin command: %v\n", command)
 	out, err := spin.RunCommand(command...)
 	if err != nil {
 		a.logger.Printf("Error running command %v: %v\nOutput was: %s\n", command, err, string(out))

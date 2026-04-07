@@ -12,16 +12,16 @@ import (
 )
 
 type ByAppArgs struct {
-	App     App     `json:"app" jsonschema:"Specify the desired Akamai Functions application by either providing the app name or its identifier. If not specified by the user, you can check if there is a .spin-aka/config.toml in the application folder, it contains the Application ID"`
+	App     App     `json:"app" jsonschema:"The Akamai Functions App (ID or Name). If unknown, check the 'local://app-context' resource first."`
 	Account Account `json:"account,omitempty" jsonschema:"Optionally specify the desired Akamai Functions account by either specifying the account name or its identifier"`
 }
 
 func (a ByAppArgs) Validate() error {
 	if len(a.App.Name) == 0 && len(a.App.Id) == 0 {
-		return fmt.Errorf("Name or Id of the desired app is required")
+		return fmt.Errorf("application Name or ID is required. Hint: Check 'local://app-context' if you are in a project folder")
 	}
 	if len(a.App.Name) > 0 && len(a.App.Id) > 0 {
-		return fmt.Errorf("You cannot specify both the app name and app id at the same time")
+		return fmt.Errorf("specify either Name or ID, not both")
 	}
 	return nil
 }
@@ -31,34 +31,38 @@ func (a ByAppArgs) getCommandArgs() []string {
 	if len(a.Account.Id) > 0 {
 		result = append(result, "--account-id", a.Account.Id)
 	}
-	if len(a.App.Name) > 0 {
-		result = append(result, "--app-name", a.App.Name)
-	}
 	if len(a.App.Id) > 0 {
 		result = append(result, "--app-id", a.App.Id)
+	} else if len(a.App.Name) > 0 {
+		result = append(result, "--app-name", a.App.Name)
 	}
 	return result
 }
 
+type ByAppOrUrlArgs struct {
+	App     App     `json:"app,omitempty" jsonschema:"The Akamai Functions App (ID or Name). If unknown, check the 'local://app-context' resource first."`
+	Account Account `json:"account,omitempty" jsonschema:"Optionally specify the desired Akamai Functions account by either specifying the account name or its identifier"`
+}
+
 type GetAppLogArguments struct {
-	App      App     `json:"app" jsonschema:"Specify the desired Akamai Functions application by either providing the app name or its identifier. If not specified by the user, you can check if there is a .spin-aka/config.toml in the application folder, it contains the Application ID"`
+	App      App     `json:"app" jsonschema:"The Akamai Functions App (ID or Name). If unknown, check the 'local://app-context' resource first."`
 	Account  Account `json:"account,omitempty" jsonschema:"Optionally specify the desired Akamai Functions account by either specifying the account name or its identifier"`
-	MaxLines int     `json:"maxLines,omitempty" jsonschema:"Maximum number of log lines to retrieve. (Defaults to 10)"`
+	MaxLines int     `json:"maxLines,omitempty" jsonschema:"Maximum number of log lines to retrieve,default=10"`
 }
 
 func (a GetAppLogArguments) Validate() error {
 	if len(a.App.Name) == 0 && len(a.App.Id) == 0 {
-
-		return fmt.Errorf("Name or Id of the desired app is required")
+		return fmt.Errorf("application Name or ID is required. Hint: Check 'local://app-context' if you are in a project folder")
 	}
 	if len(a.App.Name) > 0 && len(a.App.Id) > 0 {
-		return fmt.Errorf("You cannot specify both the app name and app id at the same time")
+		return fmt.Errorf("specify either Name or ID, not both")
 	}
 	if a.MaxLines < 0 {
 		return fmt.Errorf("MaxLines cannot be negative")
 	}
 	return nil
 }
+
 func (a GetAppLogArguments) getCommandArgs() []string {
 	result := []string{}
 	if len(a.Account.Id) > 0 {
@@ -69,7 +73,7 @@ func (a GetAppLogArguments) getCommandArgs() []string {
 	} else if len(a.App.Name) > 0 {
 		result = append(result, "--app-name", a.App.Name)
 	}
-	if a.MaxLines != 10 {
+	if a.MaxLines > 0 && a.MaxLines != 10 {
 		result = append(result, "--max-lines", strconv.Itoa(a.MaxLines))
 	}
 	return result
@@ -95,6 +99,7 @@ func (a *AkamaiFunctionsTools) GetAppDeploymentHistory(ctx context.Context, requ
 	if len(extraArgs) > 0 {
 		command = append(command, extraArgs...)
 	}
+	a.logger.Printf("Will retrieve deployment history using the following spin command: %v\n", command)
 	out, err := spin.RunCommand(command...)
 	if err != nil {
 		a.logger.Printf("Error running command to get app deployment history: %v\nOutput was: %s\n", err, string(out))
@@ -115,16 +120,12 @@ func (a *AkamaiFunctionsTools) GetAppLogs(ctx context.Context, request mcp.CallT
 		a.logger.Printf("Invalid arguments for GetAppLogs: %v\n", err)
 		return NewToolErrorResponse[[]string](err.Error()), err
 	}
-	if args.MaxLines == 0 {
-		args.MaxLines = 10
-	}
 	command := []string{"aka", "logs"}
 	extraArgs := args.getCommandArgs()
-	a.logger.Printf("Command arguments: %v\n", extraArgs)
 	if len(extraArgs) > 0 {
 		command = append(command, extraArgs...)
 	}
-	a.logger.Printf("Will run command: %v\n", command)
+	a.logger.Printf("Will retrieve logs using the following spin command: %v\n", command)
 	out, err := spin.RunCommand(command...)
 	if err != nil {
 		a.logger.Printf("Error running command: %v\nOutput: %s\n", err, string(out))
@@ -150,7 +151,7 @@ type AppStatusResponse struct {
 }
 
 func (a *AkamaiFunctionsTools) GetAppStatus(ctx context.Context, request mcp.CallToolRequest, args ByAppArgs) (ToolResponse[AppStatusResponse], error) {
-	status, err := getAppStatus(args)
+	status, err := a.getAppStatus(args)
 	if err != nil {
 		a.logger.Printf("Error getting app status: %v\n", err)
 		return NewToolErrorResponse[AppStatusResponse](err.Error()), err
@@ -159,7 +160,7 @@ func (a *AkamaiFunctionsTools) GetAppStatus(ctx context.Context, request mcp.Cal
 }
 
 func (a *AkamaiFunctionsTools) GetAppUrl(ctx context.Context, request mcp.CallToolRequest, args ByAppArgs) (ToolResponse[string], error) {
-	status, err := getAppStatus(args)
+	status, err := a.getAppStatus(args)
 	if err != nil {
 		a.logger.Printf("Error getting app status: %v\n", err)
 		return NewToolErrorResponse[string](err.Error()), err
@@ -174,7 +175,7 @@ func (a *AkamaiFunctionsTools) GetAppUrl(ctx context.Context, request mcp.CallTo
 
 const deprecatedAkamaiFunctionsDomain = "aka.fermyon.tech"
 
-func getAppStatus(args ByAppArgs) (*AppStatusResponse, error) {
+func (a *AkamaiFunctionsTools) getAppStatus(args ByAppArgs) (*AppStatusResponse, error) {
 	if err := args.Validate(); err != nil {
 
 		return nil, err
@@ -184,6 +185,7 @@ func getAppStatus(args ByAppArgs) (*AppStatusResponse, error) {
 	if len(extraArgs) > 0 {
 		command = append(command, extraArgs...)
 	}
+	a.logger.Printf("Will retrieve status using the following spin command: %v\n", command)
 	out, err := spin.RunCommand(command...)
 	if err != nil {
 		return nil, err
