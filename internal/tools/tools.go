@@ -1,14 +1,20 @@
 package tools
 
-import "log"
+import (
+	"log"
+
+	"github.com/ThorstenHans/akamai-functions-mcp/internal/spin"
+)
 
 type AkamaiFunctionsTools struct {
-	logger *log.Logger
+	backend spin.Backend
+	logger  *log.Logger
 }
 
-func NewAkamaiFunctionsTools(logger *log.Logger) *AkamaiFunctionsTools {
+func NewAkamaiFunctionsTools(backend spin.Backend, logger *log.Logger) *AkamaiFunctionsTools {
 	return &AkamaiFunctionsTools{
-		logger: logger,
+		backend: backend,
+		logger:  logger,
 	}
 }
 

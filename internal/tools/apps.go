@@ -2,7 +2,6 @@ package tools
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/ThorstenHans/akamai-functions-mcp/internal/spin"
 	"github.com/mark3labs/mcp-go/mcp"
@@ -27,28 +26,19 @@ type ListAppsItem struct {
 }
 
 type ListAppsResponse struct {
-	Apps []ListAppsItem `json:"apps"`
+	Apps []spin.App `json:"apps"`
 }
 
-func (a *AkamaiFunctionsTools) ListApps(ctx context.Context, request mcp.CallToolRequest, args MaybeByAccountArgs) (*ListAppsResponse, error) {
-	command := []string{"aka", "apps", "list", "--format", "json"}
-	if len(args.Account.Id) > 0 {
-		command = append(command, "--account-id", args.Account.Id)
-	}
-	a.logger.Printf("Will retrieve all apps for the specified account using the following spin command: %v\n", command)
-	out, err := spin.RunCommand(command...)
+func (a *AkamaiFunctionsTools) ListApps(ctx context.Context, request mcp.CallToolRequest, args MaybeByAccountArgs) (ToolResponse[*ListAppsResponse], error) {
+
+	a.logger.Printf("Will find all your Akamai Functions account")
+	apps, err := a.backend.ListApps(ctx, args.Account.Id)
 	if err != nil {
-		a.logger.Printf("Error running command %v: %v\nOutput was: %s\n", command, err, string(out))
-		return nil, err
-	}
-	var apps []ListAppsItem
-	err = json.Unmarshal(out, &apps)
-	if err != nil {
-		a.logger.Printf("Error unmarshalling output of command %v: %v\nOutput was: %s\n", command, err, string(out))
-		return nil, err
+		a.logger.Printf("Error listing apps for account %s: %v\n", args.Account.Id, err)
+		return NewToolErrorResponse[*ListAppsResponse](err.Error()), err
 	}
 	a.logger.Printf("Found %d apps for account %s\n", len(apps), args.Account.Id)
-	return &ListAppsResponse{
+	return NewToolSuccessResponse(&ListAppsResponse{
 		Apps: apps,
-	}, nil
+	}), nil
 }

@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/ThorstenHans/akamai-functions-mcp/internal/resources"
+	"github.com/ThorstenHans/akamai-functions-mcp/internal/spin"
 	"github.com/ThorstenHans/akamai-functions-mcp/internal/tools"
 
 	"github.com/mark3labs/mcp-go/server"
@@ -29,7 +30,9 @@ func main() {
 		logger = log.New(io.Discard, "", 0)
 	}
 
-	afTools := tools.NewAkamaiFunctionsTools(logger)
+	var backend = spin.NewSpinBackend(logger)
+
+	afTools := tools.NewAkamaiFunctionsTools(backend, logger)
 	afResources := resources.NewAkamaiFunctionsResources(logger)
 
 	serverOptions := []server.ServerOption{
@@ -50,8 +53,8 @@ func main() {
 
 	afTools.RegisterAllWith(mcpServer)
 	afResources.RegisterAllWith(mcpServer)
-
 	if err := server.ServeStdio(mcpServer); err != nil {
 		logger.Printf("Stdio server failed: %v\n", err)
 	}
+
 }

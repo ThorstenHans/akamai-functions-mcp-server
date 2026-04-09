@@ -64,4 +64,32 @@ func (a *AkamaiFunctionsTools) RegisterAllWith(s *server.MCPServer) {
 		mcp.WithOutputSchema[ToolResponse[AppDeploymentHistoryResponse]]())
 
 	s.AddTool(getAppHistoryTool, mcp.NewStructuredToolHandler(a.GetAppDeploymentHistory))
+
+	linkAppTool := mcp.NewTool("link_app",
+		mcp.WithDescription(`Links the current local workspace to an existing Akamai Functions application. 
+USE THIS WHEN:
+1. The user explicitly asks to link this folder to an app.
+2. A deployment or log request fails because the workspace is not linked (no local context), and the user wants to attach it to an existing remote app.
+IMPORTANT: You must provide the exact App ID or Name. Use 'list_apps' to find it first if unknown.`),
+		mcp.WithReadOnlyHintAnnotation(false),
+		mcp.WithDestructiveHintAnnotation(false),
+		mcp.WithInputSchema[LinkAppArgs](),
+		mcp.WithOutputSchema[ToolResponse[[]string]](),
+	)
+
+	s.AddTool(linkAppTool, mcp.NewStructuredToolHandler(a.LinkApp))
+
+	deployAppTool := mcp.NewTool("deploy_app",
+		mcp.WithDescription(`Deploys the application to Akamai Functions. 
+SAFETY RULES:
+1. You MUST ALWAYS ask the user for confirmation before calling this tool.
+2. If the tool fails because no local app is detected, ask the user if they want to create a brand new application, or link to an existing one.
+3. Set 'isFirstTimeDeployment' to true ONLY if deploying an app for the first time.`),
+		mcp.WithReadOnlyHintAnnotation(false),    // Modifies remote state
+		mcp.WithDestructiveHintAnnotation(false), // It overrides, but we protect against accidental creation
+		mcp.WithInputSchema[DeployAppArgs](),
+		mcp.WithOutputSchema[ToolResponse[[]string]](),
+	)
+
+	s.AddTool(deployAppTool, mcp.NewStructuredToolHandler(a.DeployApp))
 }
