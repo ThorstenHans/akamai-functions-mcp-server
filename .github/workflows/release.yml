@@ -41,9 +41,30 @@ jobs:
           fi
 
           echo "APP_VERSION=$CLEAN_VERSION" >> $GITHUB_ENV
-      - name: Build MCP Server Binary
-        run: GOOS=${{ matrix.config.goOs }} GOARCH=${{ matrix.config.goArch }} go build -ldflags="-X 'main.Version=${{ env.APP_VERSION }}'" -o ${{ env.PROGRAM_NAME }} main.go
+      - name: Set binary name
+        shell: bash
+        run: |
+          BINARY_NAME="${{ env.PROGRAM_NAME }}"
+          if [ "${{ matrix.config.goOs }}" = "windows" ]; then
+            BINARY_NAME="${BINARY_NAME}.exe"
+          fi
 
+          echo "BINARY_NAME=$BINARY_NAME" >> "$GITHUB_ENV"
+
+      - name: Build MCP Server Binary
+        shell: bash
+        run: |
+          GOOS=${{ matrix.config.goOs }} \
+          GOARCH=${{ matrix.config.goArch }} \
+          go build \
+            -ldflags="-X 'main.Version=${{ env.APP_VERSION }}'" \
+            -o "${{ env.BINARY_NAME }}" \
+            main.go
+
+      - name: Create tar.gz archive
+        shell: bash
+        run: |
+          tar -czf "${{ env.PROGRAM_NAME }}-${{ env.APP_VERSION }}-${{ matrix.config.goOs }}-${{ matrix.config.goArch }}.tar.gz" "${{ env.BINARY_NAME }}"
       - name: Archive Binary and Manifest
         uses: actions/upload-artifact@v4
         with:
