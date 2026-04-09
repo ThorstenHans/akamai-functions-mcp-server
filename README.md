@@ -7,8 +7,6 @@
 
 Unlock the power of **Akamai Functions** within your AI Assistant. This MCP (Model Context Protocol) server allows tools like Claude Desktop or Cursor to interact with your edge applications using natural language.
 
-Built in **Go** and delivered as a **Spin Plugin**.
-
 ---
 
 ## 🛑 Prerequisites
