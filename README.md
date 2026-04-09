@@ -111,7 +111,3 @@ Your AI now acts as a technical assistant for your edge infrastructure. Try aski
 ## Available Resources 📄
 
 - The `spin aka` command Reference - Returns the full command reference as markdown
-
-## Available Resource Templates
-
-- Help for `spin aka` sub-commands - Provides command documentation (provide a sub-command (supports nested sub-commands))
