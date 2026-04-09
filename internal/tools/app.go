@@ -180,3 +180,12 @@ func (a *AkamaiFunctionsTools) LinkApp(ctx context.Context, request mcp.CallTool
 	}
 	return NewToolSuccessResponse([]string{"Successfully linked workspace to app"}), nil
 }
+
+func (a *AkamaiFunctionsTools) UnlinkApp(ctx context.Context, request mcp.CallToolRequest, args MaybeByAccountArgs) (ToolResponse[[]string], error) {
+	err := a.backend.UnlinkApp(ctx, args.Account.Id)
+	if err != nil {
+		a.logger.Printf("CLI Error during unlink: %v\n", err)
+		return NewToolErrorResponse[[]string](fmt.Sprintf("Failed to unlink app: %v", err)), nil
+	}
+	return NewToolSuccessResponse([]string{"Successfully unlinked workspace from app"}), nil
+}

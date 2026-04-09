@@ -68,9 +68,9 @@ func (a *AkamaiFunctionsTools) RegisterAllWith(s *server.MCPServer) {
 	linkAppTool := mcp.NewTool("link_app",
 		mcp.WithDescription(`Links the current local workspace to an existing Akamai Functions application. 
 USE THIS WHEN:
-1. The user explicitly asks to link this folder to an app.
-2. A deployment or log request fails because the workspace is not linked (no local context), and the user wants to attach it to an existing remote app.
-IMPORTANT: You must provide the exact App ID or Name. Use 'list_apps' to find it first if unknown.`),
+1. The user explicitly asks to link this folder to an existing app.
+2. A deployment or log request fails because the workspace is not linked (workspace has no link to an application deployed to Akamai Functions), and the user wants to attach it to an existing remote app.
+IMPORTANT: You must provide the exact App ID or Name. Use 'list_apps' to see all apps and ask the user which remote app should be linked to.`),
 		mcp.WithReadOnlyHintAnnotation(false),
 		mcp.WithDestructiveHintAnnotation(false),
 		mcp.WithInputSchema[LinkAppArgs](),
@@ -78,6 +78,19 @@ IMPORTANT: You must provide the exact App ID or Name. Use 'list_apps' to find it
 	)
 
 	s.AddTool(linkAppTool, mcp.NewStructuredToolHandler(a.LinkApp))
+
+	unlinkAppTool := mcp.NewTool("unlink_app",
+		mcp.WithDescription(`Unlinks the current local workspace from the application deployed to Akamai Functions. 
+USE THIS WHEN:
+1. The user explicitly asks to unlink this workspace from an existing app.
+IMPORTANT: This does NOT delete any remote applications, it only removes the local link (the .spin-aka/config.toml file).`),
+		mcp.WithReadOnlyHintAnnotation(false),
+		mcp.WithDestructiveHintAnnotation(false),
+		mcp.WithInputSchema[MaybeByAccountArgs](),
+		mcp.WithOutputSchema[ToolResponse[[]string]](),
+	)
+
+	s.AddTool(unlinkAppTool, mcp.NewStructuredToolHandler(a.UnlinkApp))
 
 	deployAppTool := mcp.NewTool("deploy_app",
 		mcp.WithDescription(`Deploys the application to Akamai Functions. 

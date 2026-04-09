@@ -32,31 +32,25 @@ Before adding the server to your AI client, ensure your local environment is rea
 
 ## 📦 Installation
 
-### Install the latest version of the plugin
+### Install with Homebrew (recommended)
 
-The latest stable release of the `akamai-functions-mcp` plugin can be installed like so:
+Install via Homebrew by adding the Akamai Developers tap and installing the formula:
 
 ```bash
-spin plugins update
-spin plugins install akamai-functions-mcp
+brew tap akamai-developers/tap
+brew install akamai-developers/tap/akamai-functions-mcp
 ```
 
-### Install the canary version of the plugin
+### Download a precompiled binary
 
-The canary release of the `akamai-functions-mcp` represents the most recent commits on main and may not be stable, with some features still in progress.
+If Homebrew is not available (for example on Windows), download a precompiled binary [from the latest release](https://github.com/akamai-developers/akamai-functions-mcp-server/releases/latest).
 
-```bash
-spin plugins install --url https://github.com/ThorstenHans/akamai-functions-mcp-server/releases/download/canary/akamai-functions-mcp.json
-```
+### Build from source
 
-### Install from a local build
-
-Alternatively, use the `spin pluginify` plugin to install from a fresh build. This will use the `pluginify` manifest (`spin-pluginify.toml`) to package the plugin and proceed to install it:
+Build the binary locally using Go:
 
 ```bash
-spin plugins install pluginify
 go build -o akamai-functions-mcp main.go
-spin pluginify --install
 ```
 
 ## ⚙️ Configuration
@@ -107,6 +101,9 @@ Your AI now acts as a technical assistant for your edge infrastructure. Try aski
 | `get_app_logs` | Real-time execution log retrieval. |
 | `get_app_history` | Retrieve deployment history of an application deployed to Akamai Functions |
 | `search_app` | Find an application by a search term (`query`). This command iterates over all Akamai Functions accounts you've access to |
+| `deploy_app` | Deploys the application to Akamai Functions. |
+| `link_app` | Links the current local workspace to an existing Akamai Functions application. |
+| `unlink_app`| |
 
 ## Available Resources 📄
 
