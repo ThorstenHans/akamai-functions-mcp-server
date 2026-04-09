@@ -30,6 +30,8 @@ Before adding the server to your AI client, ensure your local environment is rea
 
 ## 📦 Installation
 
+> NOTE: If you're using an installation method other than Homebrew (`brew`), please add `akamai-functions-mcp` to your `PATH` variable.
+
 ### Install with Homebrew (recommended)
 
 Install via Homebrew by adding the Akamai Developers tap and installing the formula:
@@ -63,8 +65,8 @@ Update your `claude_desktop_config.json` (found in `~/Library/Application Suppor
 {
   "mcpServers": {
     "akamai-functions": {
-      "command": "spin",
-      "args": ["akamai-functions-mcp"]
+      "command": "akamai-functions-mcp",
+      "args": []
     }
   }
 }
@@ -76,8 +78,8 @@ Update your `claude_desktop_config.json` (found in `~/Library/Application Suppor
 - Click + Add Server
 - Name: `Akamai Functions`
 - Type: `command`
-- Command: `spin`
-- Args: `akamai-functions-mcp`
+- Command: `akamai-functions-mcp`
+- Args: ``
 
 ## 🤖 Example Interactions
 
@@ -101,7 +103,7 @@ Your AI now acts as a technical assistant for your edge infrastructure. Try aski
 | `search_app` | Find an application by a search term (`query`). This command iterates over all Akamai Functions accounts you've access to |
 | `deploy_app` | Deploys the application to Akamai Functions. |
 | `link_app` | Links the current local workspace to an existing Akamai Functions application. |
-| `unlink_app`| |
+| `unlink_app` | Removes the link between your local workspace and an existing application deployed to Akamai Functions. |
 
 ## Available Resources 📄
 
