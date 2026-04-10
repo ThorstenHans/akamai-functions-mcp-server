@@ -41,7 +41,9 @@ brew tap akamai-developers/tap
 brew install akamai-developers/tap/akamai-functions-mcp
 ```
 
-![Install Akamai Functions MCP Server via `brew`](./assets/install_via_brew.gif)
+<p align="center">
+  <img alt="Install Akamai Functions MCP Server via Homebrew" src="./assets/install_via_brew.gif" width="70%">
+</p>
 
 ### Download a precompiled binary
 
