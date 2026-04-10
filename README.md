@@ -41,6 +41,8 @@ brew tap akamai-developers/tap
 brew install akamai-developers/tap/akamai-functions-mcp
 ```
 
+![Install Akamai Functions MCP Server via `brew`](./assets/install_via_brew.gif)
+
 ### Download a precompiled binary
 
 If Homebrew is not available (for example on Windows), download a precompiled binary [from the latest release](https://github.com/akamai-developers/akamai-functions-mcp-server/releases/latest).
